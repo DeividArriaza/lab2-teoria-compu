@@ -13,20 +13,41 @@ notación postfija (polaca inversa) con los cuatro operadores básicos `+ - * /`
 python3 shunting_yard.py
 ```
 
+El programa imprime primero una lista de ejemplos y luego queda esperando para
+que se escriba cualquier expresión:
+
 ```
-3 + 4                        ->  3 4 +
-3 + 4 * 2                    ->  3 4 2 * +
-3 * 4 + 2                    ->  3 4 * 2 +
-(3 + 4) * 2                  ->  3 4 + 2 *
-8 - 4 - 2                    ->  8 4 - 2 -
-8 / 4 / 2                    ->  8 4 / 2 /
-3 + 4 * 2 / (1 - 5)          ->  3 4 2 * 1 5 - / +
-((2 + 3) * (4 - 1)) / 5      ->  2 3 + 4 1 - * 5 /
-12 + 345 * 6                 ->  12 345 6 * +
-2.5 * 4 - 1.5                ->  2.5 4 * 1.5 -
+Ejemplos:
+   3 + 4                        ->  3 4 +
+   3 + 4 * 2                    ->  3 4 2 * +
+   3 * 4 + 2                    ->  3 4 * 2 +
+   (3 + 4) * 2                  ->  3 4 + 2 *
+   8 - 4 - 2                    ->  8 4 - 2 -
+   8 / 4 / 2                    ->  8 4 / 2 /
+   3 + 4 * 2 / (1 - 5)          ->  3 4 2 * 1 5 - / +
+   ((2 + 3) * (4 - 1)) / 5      ->  2 3 + 4 1 - * 5 /
+   12 + 345 * 6                 ->  12 345 6 * +
+   2.5 * 4 - 1.5                ->  2.5 4 * 1.5 -
+
+Escriba su propia expresion (o 'salir' para terminar).
+Operadores: + - * /   Tambien puede usar parentesis.
+
+>>> 7 * (2 + 3) - 1
+Postfix: 7 2 3 + * 1 -
+
+>>> 2*(3+(4-1)*5)/6
+Postfix: 2 3 4 1 - 5 * + * 6 /
+
+>>> (3 + 4))
+Error: Paréntesis desbalanceados: sobra un ')'
+
+>>> 3 $ 4
+Error: Símbolo no reconocido: $
+
+>>> salir
 ```
 
-Para convertir otra expresión:
+También se puede usar como módulo:
 
 ```python
 from shunting_yard import a_postfix

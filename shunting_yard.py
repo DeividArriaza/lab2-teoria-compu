@@ -120,5 +120,34 @@ if __name__ == "__main__":
         "2.5 * 4 - 1.5",
     ]
 
+    print("Shunting Yard - Laboratorio #2, inciso 3")
+    print("Convierte expresiones aritmeticas de infijo a postfix.")
+    print()
+    print("Ejemplos:")
+
     for ejemplo in ejemplos:
-        print(ejemplo.ljust(28), "-> ", a_postfix(ejemplo))
+        print("  ", ejemplo.ljust(28), "-> ", a_postfix(ejemplo))
+
+    print()
+    print("Escriba su propia expresion (o 'salir' para terminar).")
+    print("Operadores: + - * /   Tambien puede usar parentesis.")
+
+    while True:
+
+        try:
+            expresion = input("\n>>> ")
+        except EOFError:
+            # Ocurre si se presiona Ctrl+D o si la entrada viene de un archivo.
+            print()
+            break
+
+        if expresion == "salir":
+            break
+
+        if expresion == "":
+            continue
+
+        try:
+            print("Postfix:", a_postfix(expresion))
+        except ValueError as error:
+            print("Error:", error)

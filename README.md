@@ -2,14 +2,102 @@
 
 Laboratorio #2 — Teoría de la Computación, CC2019 · UVG · Semestre 2, 2026
 
+| Inciso | Archivo | Qué hace |
+|---|---|---|
+| 3 | `shunting_yard.py` | Shunting Yard para expresiones aritméticas (`+ - * /`) |
+| 4 | `shunting_yard_regex.py` | Shunting Yard para expresiones regulares, con descripción del postfix |
+
+Cada archivo es autónomo y se ejecuta por separado. Los incisos también están
+en sus propias ramas: `ejercicio-3` y `ejercicio-4`.
+
+---
+
+## Inciso 3 — Shunting Yard para expresiones aritméticas
+
+`shunting_yard.py` convierte expresiones aritméticas de notación infija a
+notación postfija (polaca inversa) con los cuatro operadores básicos `+ - * /`.
+
+### Uso
+
+```bash
+python3 shunting_yard.py
+```
+
+El programa imprime primero una lista de ejemplos y luego queda esperando que
+se escriba cualquier expresión:
+
+```
+Ejemplos:
+   3 + 4                        ->  3 4 +
+   3 + 4 * 2                    ->  3 4 2 * +
+   3 * 4 + 2                    ->  3 4 * 2 +
+   (3 + 4) * 2                  ->  3 4 + 2 *
+   8 - 4 - 2                    ->  8 4 - 2 -
+   8 / 4 / 2                    ->  8 4 / 2 /
+   3 + 4 * 2 / (1 - 5)          ->  3 4 2 * 1 5 - / +
+   ((2 + 3) * (4 - 1)) / 5      ->  2 3 + 4 1 - * 5 /
+   12 + 345 * 6                 ->  12 345 6 * +
+   2.5 * 4 - 1.5                ->  2.5 4 * 1.5 -
+
+Escriba su propia expresion (o 'salir' para terminar).
+Operadores: + - * /   Tambien puede usar parentesis.
+
+>>> 7 * (2 + 3) - 1
+Postfix: 7 2 3 + * 1 -
+
+>>> 2*(3+(4-1)*5)/6
+Postfix: 2 3 4 1 - 5 * + * 6 /
+
+>>> (3 + 4))
+Error: Paréntesis desbalanceados: sobra un ')'
+
+>>> 3 $ 4
+Error: Símbolo no reconocido: $
+
+>>> salir
+```
+
+También se puede usar como módulo:
+
+```python
+from shunting_yard import a_postfix
+
+print(a_postfix("7 * (2 + 3) - 1"))    # 7 2 3 + * 1 -
+```
+
+### Cómo funciona
+
+El algoritmo recorre los tokens de izquierda a derecha usando una lista de
+salida y una pila de operadores en espera:
+
+| Token | Acción |
+|---|---|
+| Operando | Sale directo a la salida. |
+| Operador | Saca de la pila a los operadores que ya tengan su operando derecho completo, y luego se apila. |
+| `(` | Se apila; funciona como un muro que nadie puede cruzar. |
+| `)` | Saca operadores hasta el muro y descarta el par de paréntesis. |
+| Fin | Se vacía la pila hacia la salida. |
+
+| Operador | Precedencia | Asociatividad |
+|---|---|---|
+| `+` `-` | 1 | izquierda |
+| `*` `/` | 2 | izquierda |
+
+Como los cuatro operadores son asociativos por la izquierda, un operador que
+empata en precedencia con el que está en la pila también lo hace salir. Por eso
+`8 / 4 / 2` se agrupa como `(8 / 4) / 2`.
+
+Se aceptan paréntesis, números de varios dígitos y decimales. No se soporta el
+menos unario (`-5 + 3`), porque el enunciado pide únicamente los cuatro
+operadores binarios.
+
+---
+
 ## Inciso 4 — Shunting Yard para expresiones regulares
 
-`shunting_yard_regex.py` convierte expresiones regulares a notación polaca
-(postfix) e imprime la descripción de la expresión leyendo el postfix de
-derecha a izquierda.
-
-El archivo es autónomo: no depende del código del inciso 3, que está en la rama
-`ejercicio-3`.
+`shunting_yard_regex.py` amplía el algoritmo anterior para convertir
+expresiones regulares a notación polaca, e imprime la descripción de la
+expresión leyendo el postfix de derecha a izquierda.
 
 ### Uso
 
@@ -65,30 +153,21 @@ La primera salida es exactamente la que pide el enunciado en los incisos 4.b y
 | Concatenación | `.` | 2 | binario, asociativo por la izquierda |
 | Unión | `\|` | 1 | binario, asociativo por la izquierda |
 
-### Cómo funciona
+### Qué cambia respecto al inciso 3
 
-El recorrido es el clásico de Shunting Yard: una lista de salida, una pila de
-operadores en espera, y la regla de que un operador sale de la pila cuando el
-que llega ya no le puede robar su operando derecho.
+El recorrido es el mismo: una lista de salida, una pila de operadores, y la
+misma regla para decidir cuándo sale un operador de la pila. Sólo cambian tres
+cosas.
 
-| Token | Acción |
-|---|---|
-| Símbolo | Sale directo a la salida. |
-| `*` `+` `?` | Salen directo a la salida, sin pasar por la pila. |
-| `.` `\|` | Sacan de la pila a los operadores de precedencia mayor o igual, y luego se apilan. |
-| `(` | Se apila; funciona como un muro que nadie puede cruzar. |
-| `)` | Saca operadores hasta el muro y descarta el par de paréntesis. |
-| Fin | Se vacía la pila hacia la salida. |
+**1. Otra tabla de operadores**, la de arriba.
 
-Dos detalles son propios de las expresiones regulares:
-
-**1. La concatenación casi nunca se escribe.** En `ab` no hay ningún operador
+**2. La concatenación casi nunca se escribe.** En `ab` no hay ningún operador
 entre la `a` y la `b`. Un paso previo (`agregar_concatenacion`) inserta un `.`
 entre dos tokens cuando el de la izquierda cierra una subexpresión (símbolo,
 `)`, `*`, `+`, `?`) y el de la derecha abre otra (símbolo, `(`). Por eso
 `(a|b)*abb` y `(a|b)*.a.b.b` producen el mismo postfix.
 
-**2. Los operadores unarios no pasan por la pila.** Como `*`, `+` y `?` van
+**3. Los operadores unarios no pasan por la pila.** Como `*`, `+` y `?` van
 *después* de su operando, cuando aparecen su operando ya está completo en la
 salida, así que salen de una vez sin esperar a nadie.
 
